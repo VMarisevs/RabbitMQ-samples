@@ -22,3 +22,11 @@ Samples from (RabbitMQ website)[https://www.rabbitmq.com/tutorials/tutorial-one-
 	$ mvn exec:java -Dexec.mainClass="com.rabbitmq.sample2.NewTask"
 	$ mvn exec:java -Dexec.mainClass="com.rabbitmq.sample2.NewTask" -Dexec.arguments="Another message"
 ```
+
+
+```
+mvn exec:java -Dexec.mainClass="com.rabbitmq.sample2.Worker"
+mvn exec:java -Dexec.mainClass="com.rabbitmq.sample2.NewTask" -Dexec.args="First 60000"
+mvn exec:java -Dexec.mainClass="com.rabbitmq.sample2.NewTask" -Dexec.args="Second 1000"
+mvn exec:java -Dexec.mainClass="com.rabbitmq.sample2.NewTask" -Dexec.args="Third 1000"
+```

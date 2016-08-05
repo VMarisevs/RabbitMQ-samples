@@ -2,14 +2,14 @@ package com.rabbitmq.sample2;
 
 import java.io.IOException;
 
+import org.springframework.util.SerializationUtils;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
 
 public class NewTask {
-
-	private final static String QUEUE_NAME = "task_queue";
 	
 	public static void main(String[] args) throws IOException {
 		ConnectionFactory factory = new ConnectionFactory();
@@ -17,32 +17,38 @@ public class NewTask {
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
 		
-		channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-		String message = getMessage(args);
+		channel.queueDeclare(QueueName.getQueue(), true, false, false, null);
+		String message = "";
+		int delay = 0;
 
+		
+		if (args.length > 0 && args[0] instanceof String)
+			message = args[0].toString();
+		
+		if (args.length > 1 )
+			try{
+				delay = Integer.parseInt(args[1].toString());
+			} catch (Exception e){
+				System.out.println("Can't parse the integer: \n" + e.getMessage());
+			}
+		
+		
+		Message msg = new Message();
+		
+		msg.setDelay(delay);
+		msg.setMsg(message);
+		
+		
 		// Persistant messages
 		
-		channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
-		System.out.println(" [x] Sent '" + message + "'");
+		channel.basicPublish("", QueueName.getQueue(), MessageProperties.PERSISTENT_TEXT_PLAIN, SerializationUtils.serialize(msg));
+		
+		
+		System.out.println(" [x] Sent '" + msg.getMsg() + "', delay: " + msg.getDelay());
 		
 		channel.close();
 		connection.close();
 	}
 	
-	
-	private static String getMessage(String[] strings){
-	    if (strings.length < 1)
-	        return "Hello World!";
-	    return joinStrings(strings, " ");
-	}
 
-	private static String joinStrings(String[] strings, String delimiter) {
-	    int length = strings.length;
-	    if (length == 0) return "";
-	    StringBuilder words = new StringBuilder(strings[0]);
-	    for (int i = 1; i < length; i++) {
-	        words.append(delimiter).append(strings[i]);
-	    }
-	    return words.toString();
-	}
 }
